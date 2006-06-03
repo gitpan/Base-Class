@@ -12,7 +12,7 @@ use constant ERROR     => 0b01000; # 8
 use constant CRITICAL  => 0b10000; # 16
 
 use vars qw( $AUTOLOAD $CLONE $CLONE_SUB $VERSION $STRICT_LOGGING @ISA );
-$VERSION        = '0.11';
+$VERSION        = '0.11.1';
 $CLONE          = 'Base::Class::clone';
 $CLONE_SUB      = 'clone';
 $STRICT_LOGGING = 1;
@@ -205,7 +205,7 @@ __END__
 
 =head1 NAME
 
-Base::Class - A generalized and common base class;
+Base::Class - A very simple base class with non-weak encapsulation skills. 
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,9 @@
 
-total revisions: 2;	selected revisions: 2
 description:
+----------------------------
+revision 0.11.1
+date: 2006/06/03 19:06:45;  author: thall;  state: Exp;  lines: +1 -1
+ * Simply changed the description of the module
 ----------------------------
 revision 0.11
 date: 2006/06/03 18:47:12;  author: thall;  state: Exp;  lines: +97 -19
