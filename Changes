@@ -1,8 +1,18 @@
 
+total revisions: 2;	selected revisions: 2
+description:
 ----------------------------
-revision 0.1
+revision 0.11
+date: 2006/06/03 18:47:12;  author: thall;  state: Exp;  lines: +97 -19
+ * Moved to v.0.11
+ * Added more functionality to logger routine
+   * Too much for the changes file; review POD
+ * Modified the look and feel of the POD, added new section
+ * Added more unit tests for logging changes
+ * 2nd release to CPAN
+----------------------------
+revision 0.10
 date: 2006/06/03 02:51:47;  author: thall;  state: Exp;
- * Initial release to CPAN
  * Initial revision
  * First creation of module
  * First unit testing

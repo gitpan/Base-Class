@@ -11,10 +11,11 @@ use constant WARNING   => 0b00100; # 4
 use constant ERROR     => 0b01000; # 8
 use constant CRITICAL  => 0b10000; # 16
 
-use vars qw( $AUTOLOAD $CLONE $CLONE_SUB $VERSION @ISA );
-$VERSION   = '0.10';
-$CLONE     = 'Base::Class::clone';
-$CLONE_SUB = 'clone';
+use vars qw( $AUTOLOAD $CLONE $CLONE_SUB $VERSION $STRICT_LOGGING @ISA );
+$VERSION        = '0.11';
+$CLONE          = 'Base::Class::clone';
+$CLONE_SUB      = 'clone';
+$STRICT_LOGGING = 1;
 
 # Either modify the environment or hard-code the default here
 BEGIN { $ENV{'LOG_LEVEL'} ||= ERROR | CRITICAL; }
@@ -70,6 +71,7 @@ sub _init {
 }
 
 sub logger {
+	return if ( ! $STRICT_LOGGING && $_[-1] =~ /^\d+$/s && ! ( $_[-1] & LOG_LEVEL ) );
 	shift( @_ ) if ( ref( $_[0] ) ); # Ditch the object of object call
 	my ( $ns, $file, $line, $routine ) = ( caller( 1 ), '0x0', $0, -1, 'main' )[ 0 .. 3 ];
 	warn sprintf(
@@ -319,7 +321,9 @@ or for a single object (modifying LOG_LEVEL at the overridden sub-class).
 
 =head1 EXPORT ROUTINES
 
-=head2 logger
+=over 
+
+=item logger
 
 See the method definition for more details on this EXPORTED function
 
@@ -448,9 +452,13 @@ With the following parameters:
 
 	[TIME] Caller::from 	line 	message 
 
+=back
+
 =head1 OBJECT METHODS
 
-=head2 new
+=over 
+
+=item new
 
 * THIS METHOD IS NOT INTENDED TO BE OVERRIDEN FOR OBJECT MANIPULATION *
 
@@ -471,7 +479,7 @@ section of the documentation.
 
 	use base qw( Foo );
 
-=head2 _init
+=item _init
 
 This method, rather than C<Base::Class::new> is fully intended to be overridden by all sub-classes as necessary.
 This is handy, rather than passing a string of the name-space for the class, the first parameter of @_ will
@@ -489,7 +497,7 @@ be a reference to the current object.
 		return $self->SUPER::_init( @_ );
 	}
 
-=head2 seed
+=item seed
 
 Accepting a reference to a hash, this method will set all the values of the hash to PUBLIC
 and representative methods of the keys.  Thus:
@@ -521,7 +529,7 @@ paradigm.
 For more infomration on the finer details of how or why this works, take a look into the ACCESSOR METHOD
 section of the document.
 
-=head2 dump
+=item dump
 
 Simply, will print a particular representation of the object to STDERR.  The output of this method
 will not be wrapped in the C<Base::Class::logger> method, therefore not adding the formatting or otherwise
@@ -544,7 +552,7 @@ the object's referential memory location).
 
 	use base qw( Base::Class );
 
-=head2 hashify
+=item hashify
 
 Similar to the C<Base::Class::dump> method, will gather a hash representation of the object and return
 a reference to that hash.
@@ -563,7 +571,7 @@ a reference to that hash.
 
 	use base qw( Base::Class );
 
-=head2 copy
+=item copy
 
 Simply, will return a clone of the calling object with a blessed reference to a new object
 of the same type with the same data encapsulated in the same generated methods.
@@ -605,6 +613,8 @@ have to install C<Clone> before attempting.
 
 	use base qw( Base::Class );
 
+=back
+
 =head1 ACCESSOR METHODS
 
 The use of the accessor methods were/are the primary reason I created this module.
@@ -643,26 +653,91 @@ if an external object tries to call a 'private' method, the application will die
 Unfortunately, this will be a run-time exception; nevertheless will continue with
 the paradigm allowed.
 
+=head1 Configuration Variables
+
+=over 
+
+=item $Base::Class::CLONE
+
+Will define the mode of which to use while copying the current object.  For more
+information on this, please refer to the documentation relative to C<Base::Class::copy>
+
+This value will default to 'Base::Class::clone', which is an internallyy define cloning
+mechagnism.
+
+=item $Base::Class::CLONE_SUB
+
+Will define the routine that will be used within the $Base::Class::CLONE of which to call
+when copying the current object.
+
+This value will default to 'clone', refering to the clone routnine in the internally defined
+Base::Class::clone module.
+
+The C<Base::Class::clone::clone> will only clone a shallow copy of the object, rather than
+a deep copy.  For deep copying, it is recommended to use 'Clone::clone' or 'Storable::dclone'.
+
+=item $Base::Class::STRICT_LOGGING
+
+This is the idea of allowing the C<Base::Class::logger> method validate the log level before
+allowing the logging of a particular message. When 'off' (evalates to false in Perl), the
+logging method will check the last value of the @_, testing against the current log level
+defined at C<Base::Class::LOG_LEVEL>, rather than assuming the developer will take advantae
+of the optimizations defined in C<Base::Class::logger>.
+
+By default, Strict Logging is alwasy 'on', ththus avoiding this internal check; falling back
+to what is defined withint he C<Base::Class::loger> documentation.
+
+Example of this configuration being:
+
+	package Foo;
+
+	use strict; use warnings;
+	use base qw( Base::Class ); # ima Base::Now!
+
+	use constant LOG_LEVEL => Base::Class::LOG_LEVEL;
+	
+	# Whereas the documentation will define the following usage
+	# of the log leveling and logger routine to be the most
+	# optimal and preferred:
+	logger( 'some message' ) if ( LOG_LEVEL & Base::Class::LOG_LEVEL );
+
+	# Where the use of this configuration variable will allow for the
+	# developer to not have to know anything about the bit-masked
+	# values and optimizations, where the last parameter will be evaluated
+	# to determine if the class will log or not...
+
+	# This will turn off strict logging
+	$Base::Class::STRICT_LOGGING = 0; # Or anything 'False'
+
+	# Now we have to pass in the level we want this messgae to be logged at
+	logger( 'some message', Base::Class::TRACE );
+
+=back
+
 =head1 SEE ALSO
 
-=head2 C<Data::Dumper>
+=item Data::Dumper
 
 Not a dependancy of this module, yet always a good read.  Will be used if/when
 installed on the machine.
 
-=head2 C<POSIX>
+=item POSIX
 
 Not a dependancy of this module, yet always a good read.  Will be used if/when
 installed on the machine.
 
-=head2 C<Exporter>
+=item Exporter
 
 Not a dependancy of this module, yet always a good read.  Will be used if/when
 installed on the machine.
+
+=back
 
 =head1 DEPENDENCIES
 
-=head2 C<UNIVERSAL>
+=over
+
+=item UNIVERSAL
 
 Used in a couple of places to determine the @ISA class hierachy, therefore is
 required.  However, this is a very standard install in Perl being that it is
@@ -670,19 +745,21 @@ the base class of all objects (including this one), therefore I felt it
 safe to let UNIVERSAL slide whereas I didn't for any others.  I belive
 this was released with 5.0.1, so we should be fine here.
 
-=head2 Perl 5.6.1
+=item Perl 5.6.1
 
 For now, this is as far back as I knew I could go.  Moving foward I will
 try to make sure this can go back to first revs of 5.
 
+=back
+
 =head1 WARNINGS
 
-=head2 Requires 5.6.1
+=item Requires 5.6.1
 
 I think this is the oldest version of Perl that can currently use this module.
 Movinf forward, I will do everything I can to remove this dependency.
 
-=head2 threads
+=item threads
 
 I haven't tested this class in a threadded environment.  Let me know if you
 have any issues with this
@@ -703,7 +780,8 @@ Copyright (C) 2006 by Trevor Hall
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
-at your option, any later version of Perl 5 you may have available.
+at your option, any later or earlier version of Perl 5 you may have
+available.
 
 
 =cut
