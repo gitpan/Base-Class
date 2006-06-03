@@ -1,0 +1,15 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/10new.t
+t/20seed.t
+t/30hashify.t
+t/40accessor.t
+t/50_init.t
+t/60private.t
+t/70logger.t
+t/80dump.t
+t/90copy.t
+t/100ch_copy.t
+lib/Base/Class.pm

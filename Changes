@@ -1,0 +1,9 @@
+
+----------------------------
+revision 0.1
+date: 2006/06/03 02:51:47;  author: thall;  state: Exp;
+ * Initial release to CPAN
+ * Initial revision
+ * First creation of module
+ * First unit testing
+=============================================================================
