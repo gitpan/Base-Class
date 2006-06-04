@@ -12,7 +12,7 @@ use constant ERROR     => 0b01000; # 8
 use constant CRITICAL  => 0b10000; # 16
 
 use vars qw( $AUTOLOAD $CLONE $CLONE_SUB $VERSION $STRICT_LOGGING @ISA );
-$VERSION        = '0.11.1';
+$VERSION        = '0.12';
 $CLONE          = 'Base::Class::clone';
 $CLONE_SUB      = 'clone';
 $STRICT_LOGGING = 1;
@@ -205,7 +205,7 @@ __END__
 
 =head1 NAME
 
-Base::Class - A very simple base class with non-weak encapsulation skills. 
+Base::Class - A very simple and functional inside out base class 
 
 =head1 SYNOPSIS
 
@@ -321,9 +321,7 @@ or for a single object (modifying LOG_LEVEL at the overridden sub-class).
 
 =head1 EXPORT ROUTINES
 
-=over 
-
-=item logger
+=head2 logger
 
 See the method definition for more details on this EXPORTED function
 
@@ -452,13 +450,9 @@ With the following parameters:
 
 	[TIME] Caller::from 	line 	message 
 
-=back
-
 =head1 OBJECT METHODS
 
-=over 
-
-=item new
+=head2 new
 
 * THIS METHOD IS NOT INTENDED TO BE OVERRIDEN FOR OBJECT MANIPULATION *
 
@@ -479,7 +473,7 @@ section of the documentation.
 
 	use base qw( Foo );
 
-=item _init
+=head2 _init
 
 This method, rather than C<Base::Class::new> is fully intended to be overridden by all sub-classes as necessary.
 This is handy, rather than passing a string of the name-space for the class, the first parameter of @_ will
@@ -497,7 +491,7 @@ be a reference to the current object.
 		return $self->SUPER::_init( @_ );
 	}
 
-=item seed
+=head2 seed
 
 Accepting a reference to a hash, this method will set all the values of the hash to PUBLIC
 and representative methods of the keys.  Thus:
@@ -529,7 +523,7 @@ paradigm.
 For more infomration on the finer details of how or why this works, take a look into the ACCESSOR METHOD
 section of the document.
 
-=item dump
+=head2 dump
 
 Simply, will print a particular representation of the object to STDERR.  The output of this method
 will not be wrapped in the C<Base::Class::logger> method, therefore not adding the formatting or otherwise
@@ -552,7 +546,7 @@ the object's referential memory location).
 
 	use base qw( Base::Class );
 
-=item hashify
+=head2 hashify
 
 Similar to the C<Base::Class::dump> method, will gather a hash representation of the object and return
 a reference to that hash.
@@ -571,7 +565,7 @@ a reference to that hash.
 
 	use base qw( Base::Class );
 
-=item copy
+=head2 copy
 
 Simply, will return a clone of the calling object with a blessed reference to a new object
 of the same type with the same data encapsulated in the same generated methods.
@@ -613,8 +607,6 @@ have to install C<Clone> before attempting.
 
 	use base qw( Base::Class );
 
-=back
-
 =head1 ACCESSOR METHODS
 
 The use of the accessor methods were/are the primary reason I created this module.
@@ -655,7 +647,7 @@ the paradigm allowed.
 
 =head1 Configuration Variables
 
-=over 
+=over
 
 =item $Base::Class::CLONE
 
@@ -716,6 +708,8 @@ Example of this configuration being:
 
 =head1 SEE ALSO
 
+=over
+
 =item Data::Dumper
 
 Not a dependancy of this module, yet always a good read.  Will be used if/when
@@ -731,11 +725,7 @@ installed on the machine.
 Not a dependancy of this module, yet always a good read.  Will be used if/when
 installed on the machine.
 
-=back
-
 =head1 DEPENDENCIES
-
-=over
 
 =item UNIVERSAL
 
@@ -754,6 +744,8 @@ try to make sure this can go back to first revs of 5.
 
 =head1 WARNINGS
 
+=over
+
 =item Requires 5.6.1
 
 I think this is the oldest version of Perl that can currently use this module.
@@ -763,6 +755,8 @@ Movinf forward, I will do everything I can to remove this dependency.
 
 I haven't tested this class in a threadded environment.  Let me know if you
 have any issues with this
+
+=back
 
 =head1 AUTHOR
 
@@ -782,6 +776,5 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.5 or,
 at your option, any later or earlier version of Perl 5 you may have
 available.
-
 
 =cut
