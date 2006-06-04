@@ -1,6 +1,16 @@
 
-total revisions: 5;	selected revisions: 5
+total revisions: 6;	selected revisions: 6
 description:
+----------------------------
+revision 0.13
+date: 2006/06/04 20:04:24;  author: thall;  state: Exp;  lines: +36 -31
+ * Added new unit testing
+ * Removed warnings from the base class it's self
+   * For others, not for me!!
+ * Will now remove class stash when objects are DESTOY'd
+ * Added new warning for programatic misuses in accessor methods
+ * Added new unit testing for II++ tier sub-classes
+ * New release to CPAN
 ----------------------------
 revision 0.12
 date: 2006/06/04 02:45:18;  author: thall;  state: Exp;  lines: +15 -22

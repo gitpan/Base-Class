@@ -2,7 +2,6 @@ package Base::Class;
 
 use 5.006001; # 5.6.1
 use strict;
-use warnings;
 
 use constant NO_LOG    => 0b00000; # 0
 use constant DEBUG     => 0b00001; # 1
@@ -12,7 +11,7 @@ use constant ERROR     => 0b01000; # 8
 use constant CRITICAL  => 0b10000; # 16
 
 use vars qw( $AUTOLOAD $CLONE $CLONE_SUB $VERSION $STRICT_LOGGING @ISA );
-$VERSION        = '0.12';
+$VERSION        = '0.13';
 $CLONE          = 'Base::Class::clone';
 $CLONE_SUB      = 'clone';
 $STRICT_LOGGING = 1;
@@ -36,34 +35,6 @@ eval{ use base qw( Exporter ); };
 our @EXPORT = qw( logger ) unless( $@ );
 
 use constant LOG_LEVEL => $ENV{'LOG_LEVEL'};
-
-{
-	my $o = 0;
-	sub new {
-		logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
-		my $self = bless( \$o++, shift );
-
-		# This has to be snuck in here; if the clonify packages
-		# are redefined, we'll already have compiled past being
-		# able to re-define them.  Though, we'll only do it once
-		unless( $self->can( '__clone' ) ) {
-			logger( 'Inviting new clone module to come and play' ) if ( LOG_LEVEL & TRACE );
-			eval( "use $CLONE;" );
-			{
-				no strict 'refs';
-				*__clone = \&{ join( '::', $CLONE, $CLONE_SUB ) };
-			}
-		}
-		
-		return $self->_init( @_ );
-	}
-
-	sub DESTROY {
-		logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
-		$o--;
-		return;
-	}
-}
 
 sub _init {
 	logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
@@ -97,6 +68,37 @@ sub seed {
 
 {
 	my %accessors = ();
+
+	{
+		my $o = 0;
+		sub new {
+			logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
+			my $self = bless( \$o++, shift );
+
+			# This has to be snuck in here; if the clonify packages
+			# are redefined, we'll already have compiled past being
+			# able to re-define them.  Though, we'll only do it once
+			unless( $self->can( '__clone' ) ) {
+				logger( 'Inviting new clone module to come and play' ) if ( LOG_LEVEL & TRACE );
+				eval( "use $CLONE;" );
+				{
+					no strict 'refs';
+					*__clone = \&{ join( '::', $CLONE, $CLONE_SUB ) };
+				}
+			}
+			
+			return $self->_init( @_ );
+		}
+
+		sub DESTROY {
+			logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
+
+			undef( $accessors{"$_[0]"} ); # Ditch the stash
+			$o--;                         # Dec the ooid
+			return;
+		}
+	}
+	
 	sub dump {
 		logger( 'trace', 'enter' ) if ( LOG_LEVEL & TRACE );
 		my ( $self ) = @_;
@@ -138,8 +140,11 @@ sub seed {
 		# Let's see if we are using a getter or a setter
 		# if we are NOT, then we shouldn't be in the AUTOLOADER
 		my ( $class, $p, $action, $method ) = $AUTOLOAD =~ /^(.+)::(_)?([gs]et)_(\w+)$/s;
-		die( "Attempted use of undefined sub routine [$AUTOLOAD]" ) unless( $method && $action );
 		$p ||= '';
+		
+		# What we can't do; and what we shouldn't do!
+		die( "Attempted use of undefined sub routine [$AUTOLOAD]" ) unless( $method && $action );
+		warn( "Warning: Useless use of ${p}${action}_${method} without prior ${p}set_${method}" ) if ( $action eq 'get' );
 		
 		# Get me
 		my $self = shift();

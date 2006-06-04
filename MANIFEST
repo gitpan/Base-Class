@@ -13,6 +13,9 @@ t/80dump.t
 t/90copy.t
 t/100ch_copy.t
 t/110strict_logging.t
+t/120stash.t
 t/baseBase.pm
 t/ISABase.pm
+t/isabasebase.pm
+t/notabase.pm
 lib/Base/Class.pm
